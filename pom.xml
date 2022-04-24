@@ -24,6 +24,7 @@
 
 	<modules>
         <module>discovery-server</module>
+        <module>sample-service</module>
     </modules>
 
 	<dependencyManagement>
