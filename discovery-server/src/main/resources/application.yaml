@@ -1,0 +1,23 @@
+
+# discovery server port
+server:
+    port: 8761
+
+# this service name
+spring:
+    application:
+        name: discovery-server
+
+# 유레카 라이브러리가 포함된 상태로 스프링 부트 실행 -> 어딘가 유레카 클라이언트로서 서비스를 등록하려는 시도를 하게됨
+# 기본값은 true 현재 작업하고 있는 서비스를 자신에게 등록하게됨 -> 의미없음(외부에서는 디스커버리 서비스를 알려줄 필요 없음)
+eureka:
+    client:
+        register-with-eureka: false
+        fetch-registry: false
+
+---
+spring:
+    cloud:
+        config:
+            enabled: false
+
