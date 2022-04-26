@@ -1,0 +1,22 @@
+server:
+    port: 8080
+
+spring:
+    application:
+        name: api-geteway
+    cloud:
+        gateway:
+            routes:
+                - id: sample-service
+                  uri: lb://sample-service
+                  predicates:
+                      - Path=/api/sample/**
+
+eureka:
+#    instance:
+#        instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url:
+            defaultZone: http://127.0.0.1:8761/eureka
