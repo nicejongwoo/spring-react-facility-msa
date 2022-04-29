@@ -3,6 +3,8 @@ package com.practice.facility.auth.entity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Entity
@@ -24,5 +26,7 @@ public class UserEntity {
 
     @Column(nullable = false, unique = true)
     private String userId;
+
+    private Set<RoleEntity> roles = new HashSet<>();
 
 }
