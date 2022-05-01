@@ -14,7 +14,14 @@ spring:
                 - id: auth-service
                   uri: lb://AUTH-SERVICE
                   predicates:
-                      - Path=/api/auth/**
+                       # Path에 기입한 url 문자 그대로 auth-service 컨트롤러에 전달 됨 -> 각 서비스를 구분할 수 있어야함.
+                       # 그런데 그렇게 하면 auth-service 각 컨트롤러 바다 @RequestMapping("/auth-service")처럼 넣어줘야하는데
+                       # 해당 서비스에서는 궅이 불피요한 작업임. -> 아래 filter -> RewritePath 처럼 변환작업 함.
+                      - Path=/auth-service/api/auth/**
+                  filters:
+                      - RemoveRequestHeader=Cookie
+                      # spring cloud api로 접속시 /auth-service를 붙여도 실제 auth-service 컨트롤러에서는 /auth-service 가 없어도 됨
+                      - RewritePath=/auth-service/(?<segment>.*), /$\{segment}
 
 eureka:
 #    instance:
