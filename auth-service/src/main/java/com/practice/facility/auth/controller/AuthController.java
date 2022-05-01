@@ -22,7 +22,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/users")
+    @PostMapping("/signup")
     public String registerUser(@RequestBody UserRequest request) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
