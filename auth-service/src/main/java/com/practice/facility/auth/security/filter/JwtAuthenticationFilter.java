@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.facility.auth.dto.LoginRequest;
 import com.practice.facility.auth.dto.UserDto;
 import com.practice.facility.auth.service.UserService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
@@ -21,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 
 @Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -64,6 +67,17 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
         log.debug( "username= " + email);
 
         UserDto userDto = userService.getUserDetailsByEmail(email);
+
+        String token = Jwts.builder()
+            .setSubject(userDto.getUserId() + userDto.getEmail())
+            .setExpiration(new Date(System.currentTimeMillis() +
+                Long.parseLong(environment.getProperty("token.expiration_time"))))
+            .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
+            .compact();
+
+        response.addHeader("token", token);
+        response.addHeader("userId", userDto.getUserId());
+        response.addHeader("email", userDto.getEmail());
 
     }
 }

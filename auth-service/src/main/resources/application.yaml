@@ -35,3 +35,7 @@ eureka:
 logging:
     level:
         com.practice.facility.auth: DEBUG
+
+token:
+    expiration_time: 8640000
+    secret: secret_key
