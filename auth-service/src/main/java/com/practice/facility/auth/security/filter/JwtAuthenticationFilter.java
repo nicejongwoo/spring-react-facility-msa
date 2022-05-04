@@ -2,10 +2,16 @@ package com.practice.facility.auth.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.practice.facility.auth.dto.LoginRequest;
+import com.practice.facility.auth.dto.UserDto;
+import com.practice.facility.auth.service.UserService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -16,10 +22,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 
+@Slf4j
 public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    public JwtAuthenticationFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
+    private final UserService userService;
+    private final Environment environment;
+
+    public JwtAuthenticationFilter(String defaultFilterProcessesUrl,
+                                   AuthenticationManager authenticationManager,
+                                   UserService userService,
+                                   Environment environment) {
         super(defaultFilterProcessesUrl, authenticationManager);
+        this.userService = userService;
+        this.environment = environment;
     }
 
     @Override
@@ -45,5 +60,10 @@ public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFil
                                             HttpServletResponse response,
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
+        String email = ((User) authResult.getPrincipal()).getUsername();
+        log.debug( "username= " + email);
+
+        UserDto userDto = userService.getUserDetailsByEmail(email);
+
     }
 }

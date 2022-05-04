@@ -21,7 +21,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
     private final Environment environment;
 
-    private static final String DEFAULT_LOGIN_URL = "/api/auth/*/signin";
+    private static final String LOGIN_PROCESS_URL = "/api/auth/*/signin";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -50,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter =
-            new JwtAuthenticationFilter(DEFAULT_LOGIN_URL, authenticationManager());
+            new JwtAuthenticationFilter(LOGIN_PROCESS_URL, authenticationManager(), userService, environment);
         return jwtAuthenticationFilter;
     }
 
