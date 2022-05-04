@@ -27,7 +27,7 @@ public class UserEntity extends DateAudit{
     @Column(nullable = false, unique = true)
     private String userId;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
         joinColumns = @JoinColumn(name = "user_id"),

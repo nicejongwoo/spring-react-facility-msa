@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 public class HomeController {
 
     private final Environment environment;
@@ -15,7 +15,7 @@ public class HomeController {
         this.environment = environment;
     }
 
-    @GetMapping("/health-check")
+    @GetMapping("/v1/health-check")
     public String healthCheck() {
         return String.format("실행 포트: %s",
             environment.getProperty("local.server.port"));
