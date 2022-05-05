@@ -1,83 +1,60 @@
 package com.practice.facility.auth.security.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.practice.facility.auth.dto.LoginRequest;
-import com.practice.facility.auth.dto.UserDto;
 import com.practice.facility.auth.service.UserService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.core.env.Environment;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 
 @Slf4j
-public class JwtAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final UserService userService;
-    private final Environment environment;
+    private UserService userService;
+    private Environment environment;
 
-    public JwtAuthenticationFilter(String defaultFilterProcessesUrl,
-                                   AuthenticationManager authenticationManager,
-                                   UserService userService,
-                                   Environment environment) {
-        super(defaultFilterProcessesUrl, authenticationManager);
+    public JwtAuthenticationFilter(UserService userService, Environment environment) {
         this.userService = userService;
         this.environment = environment;
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        try {
-            LoginRequest loginRequest = new ObjectMapper().readValue(request.getInputStream(), LoginRequest.class);
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-            return getAuthenticationManager().authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword(),
-                    new ArrayList<>()
-                )
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = bearerToken.substring(7, bearerToken.length());
 
-    }
+        Claims claims = Jwts.parser()
+            .setSigningKey(environment.getProperty("token.secret"))
+            .parseClaimsJws(token)
+            .getBody();
 
-    @Override
-    protected void successfulAuthentication(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            FilterChain chain,
-                                            Authentication authResult) throws IOException, ServletException {
-        String email = ((User) authResult.getPrincipal()).getUsername();
-        log.debug( "username= " + email);
+        String email = claims.getSubject();
 
-        UserDto userDto = userService.getUserDetailsByEmail(email);
+        UserDetails userDetails = userService.loadUserByUsername(email);
 
-        String token = Jwts.builder()
-            .setSubject(userDto.getUserId() + userDto.getEmail())
-            .setExpiration(new Date(System.currentTimeMillis() +
-                Long.parseLong(environment.getProperty("token.expiration_time"))))
-            .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
-            .compact();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+            userDetails.getUsername(),
+            userDetails.getPassword(),
+            userDetails.getAuthorities()
+        );
 
-        response.addHeader("token", token);
-        response.addHeader("userId", userDto.getUserId());
-        response.addHeader("email", userDto.getEmail());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        log.debug("request:: " + request);
+
+        filterChain.doFilter(request, response);
     }
 }

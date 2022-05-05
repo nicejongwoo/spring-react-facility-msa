@@ -21,4 +21,9 @@ public class HomeController {
             environment.getProperty("local.server.port"));
     }
 
+    @GetMapping("/v1/admin-check")
+    public String adminCheck() {
+        return "This is only Admin Page";
+    }
+
 }
