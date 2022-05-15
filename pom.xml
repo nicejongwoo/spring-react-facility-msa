@@ -28,6 +28,7 @@
         <module>sample-service</module>
         <module>api-gateway</module>
         <module>auth-service</module>
+        <module>facility-service</module>
     </modules>
 
 	<dependencyManagement>
