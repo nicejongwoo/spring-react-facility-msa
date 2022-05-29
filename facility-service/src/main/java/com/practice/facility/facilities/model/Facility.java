@@ -49,7 +49,7 @@ public class Facility {
         joinColumns = @JoinColumn(name = "facility_id"),
         inverseJoinColumns = @JoinColumn(name = "area_id")
     )
-    private Set<Area> areas = new HashSet<>();
+    private Set<AreaEntity> areas = new HashSet<>();
 
     //시간
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "facility")
