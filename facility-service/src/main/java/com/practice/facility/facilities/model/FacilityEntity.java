@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "facility")
-public class Facility {
+public class FacilityEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,8 +52,14 @@ public class Facility {
     private Set<AreaEntity> areas = new HashSet<>();
 
     //시간
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "facility")
-    private List<Time> times = new ArrayList<>();
+//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "facility")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "facility_time",
+        joinColumns = @JoinColumn(name = "facility_id"),
+        inverseJoinColumns = @JoinColumn(name = "time_id")
+    )
+    private Set<TimeEntity> times = new HashSet<>();
 
 
 }
